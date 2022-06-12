@@ -10,7 +10,7 @@ export class Bubble extends PIXI.Sprite {
         this.anchor.set(0.5)
     }
 
-    update(delta:number) {
+    public update(delta:number) {
         this.y -= 1 * delta
         if (this.y < -100) {
             this.y = Math.random() * (800 - 200) + 200;

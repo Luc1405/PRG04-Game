@@ -6,20 +6,28 @@ import sharkImage from "./images/shark.png"
 import { Fish } from './fish'
 import { Bubble } from './bubbles'
 import { Shark } from './shark'
+import { Bullet } from './bullet'
 
 export class Game {
 
-    pixi: PIXI.Application;
-    loader: PIXI.Loader;
+    private pixi: PIXI.Application;
+    private loader: PIXI.Loader;
     // fish: Fish;
-    water: PIXI.Sprite;
+    private water: PIXI.Sprite;
     // bubble: PIXI.Sprite;
-    fishes : Fish[] = [];
-    bubbles: Bubble[] = [];
-    shark : Shark;
+    public fishes : Fish[] = [];
+    public bubbles: Bubble[] = [];
+    private shark : Shark;
+
+    private bullets: Bullet[] = []
+
+    public addBullet(bullet: Bullet) {
+      this.bullets.push(bullet)
+      this.pixi.stage.addChild(bullet)
+    }
 
     constructor() {
-        this.pixi = new PIXI.Application({ width: 800, height: 450 })
+        this.pixi = new PIXI.Application({ width: window.innerWidth, height: window.innerHeight })
         document.body.appendChild(this.pixi.view)
 
         this.pixi.loader
@@ -31,13 +39,13 @@ export class Game {
 
     }
 
-    doneLoading() {
+    public doneLoading() {
          this.water = new PIXI.Sprite(this.pixi.loader.resources["waterTexture"].texture!);
          this.pixi.stage.addChild(this.water);
          console.log('Loaded');
 
-        let shark = new Shark(this.pixi.loader.resources["sharkTexture"].texture!)
-        this.pixi.stage.addChild(shark)
+        this.shark = new Shark(this.pixi.loader.resources["sharkTexture"].texture!)
+        this.pixi.stage.addChild(this.shark)
 
          for (let i = 0; i < 10; i++) {
              console.log('Bubbel')
@@ -58,16 +66,17 @@ export class Game {
         // this.pixi.ticker.add((delta) => this.update(delta))
     }
 
-    update(delta: number) {
+    private update(delta: number) {
         for(let fish of this.fishes){
             fish.update(delta)
         }
         for(let bubble of this.bubbles){
             bubble.update(delta)
         }
-        const mouseposition: PIXI.Point = this.pixi.renderer.plugins.interaction
-        .mouse.global;
-        this.shark.update(delta, mouseposition)
+        this.shark.update(delta)
+        for (const bullet of this.bullets) {
+            bullet.update(delta)
+        }
     }
 }
 

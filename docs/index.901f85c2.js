@@ -534,10 +534,15 @@ class Game {
     // bubble: PIXI.Sprite;
     fishes = [];
     bubbles = [];
+    bullets = [];
+    addBullet(bullet) {
+        this.bullets.push(bullet);
+        this.pixi.stage.addChild(bullet);
+    }
     constructor(){
         this.pixi = new _pixiJs.Application({
-            width: 800,
-            height: 450
+            width: window.innerWidth,
+            height: window.innerHeight
         });
         document.body.appendChild(this.pixi.view);
         this.pixi.loader.add('sharkTexture', _sharkPngDefault.default).add('fishTexture', _fishPngDefault.default).add('bubbleTexture', _bubblePngDefault.default).add('waterTexture', _waterJpgDefault.default);
@@ -548,8 +553,8 @@ class Game {
         this.water = new _pixiJs.Sprite(this.pixi.loader.resources["waterTexture"].texture);
         this.pixi.stage.addChild(this.water);
         console.log('Loaded');
-        let shark = new _shark.Shark(this.pixi.loader.resources["sharkTexture"].texture, this);
-        this.pixi.stage.addChild(shark);
+        this.shark = new _shark.Shark(this.pixi.loader.resources["sharkTexture"].texture);
+        this.pixi.stage.addChild(this.shark);
         for(let i = 0; i < 10; i++){
             console.log('Bubbel');
             let bubble = new _bubbles.Bubble(this.pixi.loader.resources["bubbleTexture"].texture);
@@ -570,7 +575,8 @@ class Game {
     update(delta) {
         for (let fish of this.fishes)fish.update(delta);
         for (let bubble of this.bubbles)bubble.update(delta);
-        this.shark.update();
+        this.shark.update(delta);
+        for (const bullet of this.bullets)bullet.update(delta);
     }
 }
 new Game();
@@ -37179,38 +37185,55 @@ class Bubble extends _pixiJs.Sprite {
 },{"pixi.js":"dsYej","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"kN3uI":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "Shark", ()=>Shark
+/**
+ * Fish moves towards the mouse position using vector math
+ */ parcelHelpers.export(exports, "Shark", ()=>Shark
 );
 var _pixiJs = require("pixi.js");
 class Shark extends _pixiJs.Sprite {
-    speed = 0;
-    constructor(texture, game){
+    // sets the speed of the fish
+    speed = 8;
+    constructor(texture){
         super(texture);
-        this.game = game;
-        console.log("shark created");
-        this.x = game.pixi.screen.width - this.getBounds().width;
-        this.y = Math.random() * game.pixi.screen.height;
-        this.scale.set(-1, 1);
+        // this.tint = 0x00FF00;
+        const filter = new _pixiJs.filters.ColorMatrixFilter();
+        this.filters = [
+            filter
+        ];
+        filter.hue(100, false); // Green/yellow
+        this.anchor.set(0, 0.5);
+        this.x = 300;
+        this.y = 100;
         window.addEventListener("keydown", (e)=>this.onKeyDown(e)
         );
         window.addEventListener("keyup", (e)=>this.onKeyUp(e)
         );
     }
-    onKeyDown(e) {
-        if (e.key === "ArrowUp") this.speed = -5;
-        if (e.key === "ArrowDown") this.speed = 5;
-    }
     onKeyUp(e) {
-        if (e.key === "ArrowUp" || e.key === "ArrowDown") this.speed = 0;
+    // console.log('keyup');
     }
-    update() {
-        this.x -= 4;
-        this.y += this.speed;
-        this.keepInScreen();
+    onKeyDown(e) {
+        // console.log(e.key.toUpperCase());
+        switch(e.key.toUpperCase()){
+            case "W":
+            case "ARROWUP":
+                this.y -= this.speed;
+                break;
+            case "S":
+            case "ARROWDOWN":
+                this.y += this.speed;
+                break;
+            case "A":
+            case "ARROWLEFT":
+                this.x -= this.speed;
+                break;
+            case "D":
+            case "ARROWRIGHT":
+                this.x += this.speed;
+                break;
+        }
     }
-    keepInScreen() {
-        if (this.getBounds().right < this.game.pixi.screen.left) this.x = this.game.pixi.screen.right;
-    }
+    update(delta) {}
 }
 
 },{"pixi.js":"dsYej","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}]},["fpRtI","edeGs"], "edeGs", "parcelRequirea0e5")

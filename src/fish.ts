@@ -20,12 +20,12 @@ export class Fish extends PIXI.Sprite {
         // this.fishes.push(this.fish)
     }
 
-    fishClicked() {
+    public fishClicked() {
         this.x = Math.random() * (-1000) -50;
         this.y = Math.random() * (400);
     }
 
-    update(delta:number) {
+    public update(delta:number) {
         console.log("This fish is updating!")
         this.x += 1 * delta
         if (this.x > 1200) {
